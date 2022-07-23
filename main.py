@@ -7,11 +7,26 @@ import math
 import argparse
 
 # PyQt5
+import os, sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
 
+# ==================================================
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path,"resource/UI/" ,relative_path)
+
+form = resource_path("FirstScreen.ui")
+form_class = uic.loadUiType(form)[0]
+
+form_Main_EM = resource_path("Main_EM.ui")
+form_Main_EM_window = uic.loadUiType(form_Main_EM)[0]
+
+# ==================================================
 # Detection with DNN
+
 def highlightFace(net, frame, conf_threshold=0.7):
     frameOpencvDnn=frame.copy()
     frameHeight=frameOpencvDnn.shape[0]
@@ -32,37 +47,44 @@ def highlightFace(net, frame, conf_threshold=0.7):
             #cv2.rectangle(frameOpencvDnn, (x1,y1), (x2,y2), (0,255,0), int(round(frameHeight/150)), 8)
     return frameOpencvDnn,faceBoxes
 
+# ==================================================
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--image')
 
 args=parser.parse_args()
 
-faceProto="./data/opencv_face_detector.pbtxt"
-faceModel="./data/opencv_face_detector_uint8.pb"
-ageProto="./data/age_deploy.prototxt"
-ageModel="./data/age_net.caffemodel"
-genderProto="./data/gender_deploy.prototxt"
-genderModel="./data/gender_net.caffemodel"
+faceProto="./resource/kernel/opencv_face_detector.pbtxt"
+faceModel="./resource/kernel/opencv_face_detector_uint8.pb"
+ageProto="./resource/kernel/age_deploy.prototxt"
+ageModel="./resource/kernel/age_net.caffemodel"
+genderProto="./resource/kernel/gender_deploy.prototxt"
+genderModel="./resource/kernel/gender_net.caffemodel"
 
 MODEL_MEAN_VALUES=(78.4263377603, 87.7689143744, 114.895847746)
 ageList=[1,2,3,4,5,6,7,8]
 #ageList=['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
 genderList=[1,0]
+#genderList=["Male","FeMale"]
 
 faceNet=cv2.dnn.readNet(faceModel,faceProto)
 ageNet=cv2.dnn.readNet(ageModel,ageProto)
 genderNet=cv2.dnn.readNet(genderModel,genderProto)
 
-while 1:
+# ==================================================
+
+def LoadCustomersInfo():
     video=cv2.VideoCapture(args.image if args.image else 0)
     print(video.isOpened())
 
     padding=20
 
+    gender=None
+    age=None
+
     sum_age=0
     sum_gender=0
-    repeat_num=10
+    repeat_num=5
 
     if video.isOpened():
         for i in range(0,repeat_num):
@@ -78,23 +100,73 @@ while 1:
                         :min(faceBox[2]+padding, frame.shape[1]-1)]
 
                 blob=cv2.dnn.blobFromImage(face, 1.0, (227,227), MODEL_MEAN_VALUES, swapRB=False)
+                
+                # Gender
                 genderNet.setInput(blob)
                 genderPreds=genderNet.forward()
-                gender=genderList[genderPreds[0].argmax()]
 
+                # Age
                 ageNet.setInput(blob)
                 agePreds=ageNet.forward()
-                age=ageList[agePreds[0].argmax()]
 
-                #sum_age += int(age[1:-1].split("-")[0])
-                #sum_age += int(age[1:-1].split("-")[1])
-                print(gender,age)
-                sum_age+=age
+                # Calculate the Oldest, if many people are detected
+                if(age != None)and(age < ageList[agePreds[0].argmax()]):
+                    age = ageList[agePreds[0].argmax()]
+                    gender = genderList[genderPreds[0].argmax()]
+                elif age == None:
+                    age = ageList[agePreds[0].argmax()]
+                    gender = genderList[genderPreds[0].argmax()]
 
-                sum_gender += gender
+            #print(gender,age)
+            sum_age+=age
+            sum_gender += gender
         
         video.release()
 
-    print("{}\t{}".format(sum_gender/repeat_num,sum_age/repeat_num))
+        #print("{}\t{}".format(sum_gender/repeat_num,sum_age/repeat_num))
+        return sum_gender/repeat_num, sum_age/repeat_num
 
-    print(input("쉬운 모드로 사용하시겠습니까? "))
+# ==================================================
+# FirstScreen
+
+class WindowClass(QMainWindow, form_class):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+        self.Btn_Start.clicked.connect(self.btn_start_click)
+
+    def btn_start_click(self):
+        gender, age = LoadCustomersInfo()
+        print(age)
+
+        if age >= 6 or age <= 2:
+            self.hide()                     # Hide main(this) Window
+            self.second = Main_EM_window()
+            self.second.exec()              # wait until when Second window is closed
+            self.show()                     # Show main window
+
+
+
+# ==================================================
+# Main_EM (Easy Mode)
+
+class Main_EM_window(QDialog,QWidget,form_Main_EM_window):
+    def __init__(self):
+        super(Main_EM_window,self).__init__()
+        self.initUi()
+        self.show()
+
+    def initUi(self):
+        self.setupUi(self)
+
+    def btn_second_to_main(self):
+        self.close()                    #클릭시 종료됨.
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    myWindow = WindowClass()
+    myWindow.show()
+    app.exec_()
+
+

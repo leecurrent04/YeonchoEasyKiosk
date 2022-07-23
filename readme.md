@@ -1,6 +1,6 @@
 # Easy Kiosk
 
-Yeoncho AI summer lecture 2022
+Yeoncho High School AI summer lecture 2022
 
 <br>
 
