@@ -1,10 +1,17 @@
 # https://github.com/smahesh29/Gender-and-Age-Detection
 #A Gender and Age Detection program by Mahesh Sawant
 
+# Gender&Age Detection
 import cv2
 import math
 import argparse
 
+# PyQt5
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5 import uic
+
+# Detection with DNN
 def highlightFace(net, frame, conf_threshold=0.7):
     frameOpencvDnn=frame.copy()
     frameHeight=frameOpencvDnn.shape[0]
