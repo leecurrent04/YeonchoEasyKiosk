@@ -1,0 +1,20 @@
+easy - 쉬운 화면
+food_main -> food_recevement_easy -> food_choose_hambuger_easy -> food_choose_side_easy -> food_payment_easy -> food_result
+
+food_choose_hambuger_easy 와 food_choose_side_easy
+-감자튀김 버튼, 탄산음료 버튼, 아이스크림 버튼 클릭시 바로 옆에 있는 수량 1씩 증가하여 각 label 에 표시. (변수명: 순서대로 cheeseb_button, cheeseb_label, bulgogib_button, bulgogib_label, chickenb_button, chickenb_label)
+-사이드 메뉴도 마찬가지 방법 (변수명: 순서대로 fries_button, fries_label, soda_button, soda_label, icecream_button, icecream_label)
+
+food_payment_easy
+-총합 금액 계산 (변수명: total_price)
+
+
+
+default - 확장판
+food_main -> food_choose_default -> food_payment_default -> food_result
+
+food_choose_default
+-좌측면에 있는 오늘의 버거, 햄버거, 사이드 클릭시 종류에 따른 메뉴 버튼 생성 (변수명: 순서대로, todays_burger_button, hambuger_button, side_button)
+
+food_payment_default
+-tableview에 클릭한 것 표시, 가격도 계산하여 표시 (변수명: table, total_price)

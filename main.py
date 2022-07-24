@@ -13,19 +13,7 @@ from PyQt5.QtGui import *
 from PyQt5 import uic
 
 # ==================================================
-
-def resource_path(relative_path):
-    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path,"resource/UI/" ,relative_path)
-
-form = resource_path("FirstScreen.ui")
-form_class = uic.loadUiType(form)[0]
-
-form_Main_EM = resource_path("Main_EM.ui")
-form_Main_EM_window = uic.loadUiType(form_Main_EM)[0]
-
-# ==================================================
-# Detection with DNN
+# Higtlight Face with DNN
 
 def highlightFace(net, frame, conf_threshold=0.7):
     frameOpencvDnn=frame.copy()
@@ -127,6 +115,18 @@ def LoadCustomersInfo():
         return sum_gender/repeat_num, sum_age/repeat_num
 
 # ==================================================
+# Load UI
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path,"resource/UI/" ,relative_path)
+
+form_class = uic.loadUiType(resource_path("food_main.ui"))[0]
+form_receivement = uic.loadUiType(resource_path("food_receivement.ui"))[0]
+form_chooseE = uic.loadUiType(resource_path("food_choose_E.ui"))[0]
+form_chooseNE = uic.loadUiType(resource_path("food_choose_NE.ui"))[0]
+
+# ==================================================
 # FirstScreen
 
 class WindowClass(QMainWindow, form_class):
@@ -137,31 +137,157 @@ class WindowClass(QMainWindow, form_class):
         self.Btn_Start.clicked.connect(self.btn_start_click)
 
     def btn_start_click(self):
-        gender, age = LoadCustomersInfo()
-        print(age)
+        CustomerGender, CustomerAge = LoadCustomersInfo()
 
-        if age >= 6 or age <= 2:
-            self.hide()                     # Hide main(this) Window
-            self.second = Main_EM_window()
-            self.second.exec()              # wait until when Second window is closed
-            self.show()                     # Show main window
+        self.hide()                     # Hide main(this) Window
+
+        if CustomerAge >= 6 or CustomerAge <= 2:
+            self.second = chooseEasyWindow()
+        else:
+            self.second = chooseNEasyWindow()
 
 
+        self.second.exec()              # wait until when Second window is closed
+        self.show()                     # Show main window
 
 # ==================================================
-# Main_EM (Easy Mode)
+# choode Easy
 
-class Main_EM_window(QDialog,QWidget,form_Main_EM_window):
+class chooseEasyWindow(QDialog,QWidget,form_chooseE):
     def __init__(self):
-        super(Main_EM_window,self).__init__()
+        super(chooseEasyWindow,self).__init__()
         self.initUi()
         self.show()
+
+        self.Btn_back.clicked.connect(self.BtnBackClicked)
+
+        self.Btn_bulgogiBuger.clicked.connect(self.BtnBulgogiClicked)
+        self.Btn_bulgogiBugerImg.clicked.connect(self.BtnBulgogiClicked)
+
+        self.Btn_cheeseBuger.clicked.connect(self.BtnCheeseClicked)
+        self.Btn_cheeseBugerImg.clicked.connect(self.BtnCheeseClicked)
+
+        self.Btn_chickenBuger.clicked.connect(self.BtnChickenClicked)
+        self.Btn_chickenBugerImg.clicked.connect(self.BtnChickenClicked)
 
     def initUi(self):
         self.setupUi(self)
 
-    def btn_second_to_main(self):
+    def BtnBackClicked(self):
         self.close()                    #클릭시 종료됨.
+
+    def BtnBulgogiClicked(self):
+        tempNum = int(self.Lbl_bulgogi.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_bulgogi.setText(str(tempNum))
+
+    def BtnCheeseClicked(self):
+        tempNum = int(self.Lbl_cheese.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_cheese.setText(str(tempNum))
+
+    def BtnChickenClicked(self):
+        tempNum = int(self.Lbl_chicken.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_chicken.setText(str(tempNum))
+
+# ==================================================
+# choode NEasy
+
+class chooseNEasyWindow(QDialog,QWidget,form_chooseNE):
+    def __init__(self):
+        super(chooseNEasyWindow,self).__init__()
+        self.initUi()
+        self.show()
+
+        self.Btn_back.clicked.connect(self.BtnBackClicked)
+
+        self.Btn_bulgogiBugerImg.clicked.connect(self.BtnBulgogiClicked)
+        self.Btn_cheeseBugerImg.clicked.connect(self.BtnCheeseClicked)
+        self.Btn_chickenBugerImg.clicked.connect(self.BtnChickenClicked)
+        self.Btn_filetofishBugerImg.clicked.connect(self.BtnFiletofishClicked)
+        self.Btn_doublefiletofishBugerImg.clicked.connect(self.BtnDoubleFiletofishClicked)
+        self.Btn_bigmacBugerImg.clicked.connect(self.BtnBigmacClicked)
+
+    def initUi(self):
+        self.setupUi(self)
+
+    def BtnBackClicked(self):
+        self.close()                    #클릭시 종료됨.
+
+    def BtnBulgogiClicked(self):
+        tempNum = int(self.Lbl_bulgogi.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_bulgogi.setText(str(tempNum))
+
+    def BtnCheeseClicked(self):
+        tempNum = int(self.Lbl_cheese.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_cheese.setText(str(tempNum))
+
+    def BtnChickenClicked(self):
+        tempNum = int(self.Lbl_chicken.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_chicken.setText(str(tempNum))
+
+    def BtnFiletofishClicked(self):
+        tempNum = int(self.Lbl_filetofish.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_filetofish.setText(str(tempNum))
+
+    def BtnDoubleFiletofishClicked(self):
+        tempNum = int(self.Lbl_doublefiletofish.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_doublefiletofish.setText(str(tempNum))
+
+    def BtnBigmacClicked(self):
+        tempNum = int(self.Lbl_bigmac.text())
+        if not tempNum >= 9:
+            tempNum+=1
+
+        self.Lbl_bigmac.setText(str(tempNum))
+
+# ==================================================
+# from_receivement
+
+class receivementWindow(QDialog,QWidget,form_receivement):
+    def __init__(self):
+        super(receivementWindow,self).__init__()
+        self.initUi()
+        self.show()
+
+        self.Btn_inside.clicked.connect(self.BtnInsideClicked)
+        self.Btn_outside.clicked.connect(self.BtnOutsideClicked)
+        self.Btn_back.clicked.connect(self.BtnBackClicked)
+
+    def initUi(self):
+        self.setupUi(self)
+
+    def BtnInsideClicked(self):
+        self.close()                    #클릭시 종료됨.
+
+    def BtnOutsideClicked(self):
+        self.close()                    #클릭시 종료됨.
+
+    def BtnBackClicked(self):
+        self.close()                    #클릭시 종료됨.
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
