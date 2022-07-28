@@ -151,7 +151,7 @@ class WindowClass(QMainWindow, form_class):
         self.show()                     # Show main window
 
 # ==================================================
-# choode Easy
+# choose Easy
 
 class chooseEasyWindow(QDialog,QWidget,form_chooseE):
     def __init__(self):
